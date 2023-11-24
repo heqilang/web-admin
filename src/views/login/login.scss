@@ -1,0 +1,209 @@
+.login_bg {
+  background: url(/images/xt-bg.png) no-repeat 100% 100%;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+}
+.login_title {
+  padding: 50px 0 0 50px;
+  .title_hello {
+    font-weight: bold;
+    font-size: 40px;
+  }
+  .title_mark {
+    font-weight: bold;
+    font-size: 24px;
+  }
+}
+.xt-title {
+  text-align: center;
+  font-family: ShuHeiTi;
+  justify-content: center;
+  padding-top: 20px;
+  // margin-top:24px;
+  .xt-logo {
+    width: 59px;
+    height: 61px;
+    background: url('/images/hz-cfc-logo.png') no-repeat;
+    background-size: 100% 100%;
+    margin: 0 auto;
+    overflow: hidden;
+    margin-bottom: 15px;
+  }
+  div {
+    margin-top: 5px;
+    font-size: 28px;
+    color: #333;
+    margin-left: 16px;
+  }
+}
+
+.login_top {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  background-color: rgba(102, 102, 102, 1);
+  height: 45px;
+  img {
+    height: 45px;
+    margin-left: 30px;
+    background: #fff;
+  }
+}
+.text_forget_pwd {
+  cursor: pointer;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 12px;
+  color: #909399;
+  text-align: center;
+  padding: 0 10px;
+}
+.copyright {
+  font-weight: 400;
+  font-style: normal;
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  margin: 20px 0 20px 0;
+  cursor: pointer;
+}
+.login_wrap {
+  padding-top: 10px;
+  border-radius: 5px;
+  min-width: 996px;
+  min-height: 514px;
+  display: flex;
+  justify-content: space-between;
+  // height: 538px;
+  background: #fff url(/images/sy-login.png) no-repeat 100% 100%;
+  background-size: cover;
+}
+.login_box {
+  //position: absolute;
+  //top: 50%;
+  //right: 12%;
+  z-index: 1;
+  // -webkit-transform: translate(0%, -50%);
+  // transform: translate(0%, -50%);
+  padding: 0 60px;
+  width: 480px;
+  min-height: 360px;
+  // margin: auto;
+  // background: inherit;
+  // background-color: rgba(255, 255, 255, 1);
+  box-sizing: border-box;
+  // -moz-box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.0980392156862745);
+  // -webkit-box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.0980392156862745);
+  // box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.0980392156862745);
+  border-radius: 20px;
+  font-size: 14px;
+  color: #303133;
+  h3 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 24px;
+    color: #333;
+    text-align: center;
+    margin: 10px 0;
+    margin-top: 20px;
+    & > span {
+      font-family: puhuiti;
+      font-weight: bold;
+    }
+    .btn {
+      user-select: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      color: #008fff;
+      font-size: 16px;
+      font-weight: 400;
+      &:hover {
+        color: #003bee;
+      }
+      &:active {
+        color: #008fff;
+      }
+    }
+    .back_icon {
+      font-size: 20px;
+      position: absolute;
+      left: 20px;
+      cursor: pointer;
+      &:hover {
+        color: #409eff;
+      }
+    }
+  }
+  .other_login {
+    display: -webkit-box; /* 老版本语法: Safari, iOS, Android browser, older WebKit browsers. */
+    display: -moz-box; /* 老版本语法: Firefox (buggy) */
+    display: -ms-flexbox; /* 混合版本语法: IE 10 */
+    display: -webkit-flex; /* 新版本语法: Chrome 21+ */
+    display: flex; /* 新版本语法: Opera 12.1, Firefox 22+ */
+    justify-content: space-around;
+    align-items: center;
+    font-size: 12px;
+    color: #409eff;
+    div {
+      display: -webkit-box; /* 老版本语法: Safari, iOS, Android browser, older WebKit browsers. */
+      display: -moz-box; /* 老版本语法: Firefox (buggy) */
+      display: -ms-flexbox; /* 混合版本语法: IE 10 */
+      display: -webkit-flex; /* 新版本语法: Chrome 21+ */
+      display: flex; /* 新版本语法: Opera 12.1, Firefox 22+ */
+      align-items: center;
+      p {
+        cursor: pointer;
+      }
+      p:first-child {
+        margin-right: 30px;
+      }
+    }
+    img {
+      height: 28px;
+      width: 28px;
+      vertical-align: middle;
+      // margin-right: 2px;
+    }
+  }
+}
+:deep(.login_box .el-input__inner) {
+  height: 36px !important;
+  font-size: 16px;
+}
+:deep(.login_box .el-form-item__content) {
+  p.label {
+    line-height: 1;
+    color: #333;
+  }
+  // height: 36px !important;
+}
+.login_box .el-button {
+  height: 36px !important;
+  padding: 0;
+  width: 100%;
+}
+.login_form {
+  width: 100%;
+  margin: auto;
+}
+.code_img {
+  margin: auto;
+  display: block;
+  height: 238px;
+  width: 238px;
+}
+.txt_code {
+  text-align: center;
+  font-size: 12px;
+  color: #606266;
+  margin-bottom: 0;
+}

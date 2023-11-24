@@ -1,0 +1,15 @@
+# name          api创建目录
+# path          swagger文档地址
+# description   模块说明
+# importApi     api连接实例
+# importEntity  api连接实例导入目录
+- name: minio
+  path: http://10.150.2.13:7000/minio/swagger/v1/swagger.json
+  description: 文件上传
+  importApi: MINIO_API
+  importEntity: src/utils/api/index
+- name: system
+  path: http://10.150.2.13:7000/sys/v3/api-docs
+  description: 系统管理
+  importApi: SYS_API
+  importEntity: src/utils/api/index

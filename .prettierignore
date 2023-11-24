@@ -1,0 +1,10 @@
+/*
+!/pulic
+!/src
+!*.js
+!*.json
+!/ci
+!*.ts
+!/*.html
+!/gulpClass
+!/apimodules.yaml

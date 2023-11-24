@@ -1,0 +1,62 @@
+.generalPlateTitle {
+  $img_url: '/images/screen';
+  $height: 34px;
+  font-size: 22px;
+  width: 100%;
+  height: $height;
+  font-family: 'SourceHanSansCN', sans-serif;
+  position: relative;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 30px;
+    height: $height;
+    background-image: url('#{$img_url}/标题栏通用图标.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: $height;
+    bottom: 0;
+    width: calc(100% - 30px);
+    height: 5px;
+    background-image: url('#{$img_url}/标题栏分割线.png');
+    background-repeat: no-repeat;
+    background-size: 100%;
+  }
+
+  .title {
+    margin-left: $height;
+    margin-right: 12px;
+    padding-bottom: 2px;
+    &.pointer {
+      cursor: pointer;
+    }
+    span.font18 {
+      font-size: 18px;
+    }
+  }
+
+  .right-icons {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    .close-btn {
+      & + .close-btn {
+        margin-left: 12px;
+      }
+      user-select: none;
+      cursor: pointer;
+      width: 18px;
+    }
+  }
+}

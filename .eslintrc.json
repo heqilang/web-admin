@@ -1,0 +1,129 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:vue/vue3-essential",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "overrides": [],
+  "parser": "vue-eslint-parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "parser": "@typescript-eslint/parser",
+    "ecmaFeatures": { "jsx": true }
+  },
+  "plugins": ["vue", "@typescript-eslint", "prettier"],
+  "rules": {
+    "no-console": ["warn", { "allow": ["warn", "error", "debug"] }],
+    /** 不要有多行空格 */
+    "no-multi-spaces": "error",
+    "no-debugger": "error",
+    /** 每行一个变量声明 */
+    "one-var": ["error", "never"],
+    /** 不要使用var声明变量 */
+    "no-var": "error",
+    "no-void": "error",
+    /** 使用===替换== */
+    "eqeqeq": "error",
+    /** switch的条件中出现 var、let、const、function、class 等关键字，必须使用花括号把内容括起来 */
+    "no-case-declarations": "error",
+    /** 禁止switch穿透，使用穿透时使用注释 fallthrough 标识，  */
+    "no-fallthrough": ["error", { "commentPattern": "fallthrough", "allowEmptyCase": true }],
+
+    /** 函数参数禁止重名 */
+    "no-dupe-args": "error",
+    /**  禁止对象出现重名键值 */
+    "no-dupe-keys": "error",
+    /**  类方法禁止重名 */
+    "no-dupe-class-members": "error",
+    /**  禁止 switch 中出现相同的 case */
+    "no-duplicate-case": "error",
+    /**  禁止重复 import */
+    "no-duplicate-imports": "error",
+    /**  禁止空的 function 包含注释的情况下允许 */
+    "no-empty-function": "error",
+    /**  禁止解构中出现空 {} 或 [] */
+    "no-empty-pattern": "error",
+    /**  禁止出现空代码块 */
+    "no-empty": ["error", { "allowEmptyCatch": true }],
+    /**  禁止扩展原生对象 */
+    "no-extend-native": ["error", { "exceptions": ["Array", "Object"] }],
+    /**  禁止在 setTimeout 和 setInterval 中传入字符串，因会触发隐式 eval */
+    "no-implied-eval": "error",
+    /**  禁止隐式定义全局变量 */
+    "no-implicit-globals": "error",
+    /**  禁止在块作用域内使用 var 或函数声明 */
+    "no-inner-declarations": ["error", "both"],
+    /**  禁止混用空格和 tab 来做缩进，必须统一 */
+    "no-mixed-spaces-and-tabs": "error",
+    /**  禁止连等赋值 */
+    "no-multi-assign": "error",
+    /**  禁止使用 \ 来定义多行字符串，统一使用模板字符串来做 */
+    "no-multi-str": "error",
+    /**  禁止使用 __proto__ */
+    "no-proto": "error",
+    /**  禁止重复声明 */
+    "no-redeclare": "error",
+    /**  禁止逗号操作符 */
+    "no-sequences": "error",
+    /**  禁止使用保留字作为变量名 */
+    "no-shadow-restricted-names": "error",
+    /**  禁止在构造函数的 super 之前使用 this */
+    "no-this-before-super": "error",
+    /**  设置了 setter ，必须相应设置 getter ，反之不必须 */
+    "accessor-pairs": "error",
+    /**  禁止使用 hasOwnProperty, isPrototypeOf 或 propertyIsEnumerable */
+    "no-prototype-builtins": "off",
+    /**  禁止使用异步函数作为执行函数 */
+    "no-async-promise-executor": "error",
+    /**  async 函数中必须存在 await 语句 */
+    "require-await": "error",
+    /**  声明后不再修改的变量必须使用 const */
+    "prefer-const": ["error", { "ignoreReadBeforeAssign": false, "destructuring": "all" }],
+    /** 使用 func(...args) 来代替 func.apply(args) */
+    "prefer-spread": "off",
+    /**  this 的别名规则，只允许 self 或 that */
+    "consistent-this": "error",
+    /** 禁止出现无用的表达式 */
+    "no-unused-expressions": [
+      "error",
+      {
+        "allowShortCircuit": true, // 允许使用 a() || b 或 a && b()
+        // "allowTernary": true, // 允许在表达式中使用三元运算符
+        "allowTaggedTemplates": true // 允许标记模板字符串
+      }
+    ],
+
+    /**  单模块最大行数 */
+    "max-lines": ["error", { "max": 5600, "skipComments": true }],
+    /** 强制使用组件定义名称为PascalCase */
+    "vue/component-definition-name-casing": "error",
+    /** 属性连字检查 */
+    "vue/attribute-hyphenation": "off",
+    /** 组件名称始终为多字 */
+    "vue/multi-word-component-names": "error",
+    /**  禁止使用 any类型 */
+    "@typescript-eslint/no-explicit-any": "off",
+    /**  未使用的变量，使用 _ 略过检查 */
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "vars": "all",
+        "args": "all",
+        "varsIgnorePattern": "^[iI]gnored",
+        "argsIgnorePattern": "^_",
+        "caughtErrors": "all",
+        "caughtErrorsIgnorePattern": "^[iI]gnore"
+      }
+    ],
+    /**  prettier规则扩展 */
+    "prettier/prettier": "error"
+  }
+}

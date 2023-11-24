@@ -1,0 +1,102 @@
+@charset "UTF-8";
+.right-detail-card .tab::after {
+  opacity: 0.8;
+}
+
+.right-detail-card .tab {
+  position: relative;
+  width: 100%;
+  min-height: 142px;
+  display: inline-block;
+  vertical-align: top;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.5s;
+}
+
+.right-detail-card .tab:nth-child(2n) {
+  margin-right: 0px;
+}
+
+.right-detail-card .tab:hover {
+  box-shadow: rgba(111, 184, 255, 0.7) 0px 0px 6px 6px inset;
+}
+
+.right-detail-card .tab.warning {
+  position: relative;
+  box-shadow: rgba(255, 0, 0, 0.1) 0px 0px 6px 6px inset;
+}
+
+.right-detail-card .tab.warning:hover {
+  box-shadow: rgba(255, 0, 0, 0.1) 0px 0px 6px 6px inset;
+}
+
+.right-detail-card .tab.warning::after {
+  content: '';
+  cursor: pointer;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  box-shadow: inset 0px 5px 20px 1px red;
+  border-radius: 20px 20px 20px 50px;
+  border-image: linear-gradient(180deg, red, rgba(255, 0, 0, 0.3), rgba(255, 0, 0, 0.3), #1477ff) 1 1;
+  margin: 0px 8px 13px 0px;
+  transition: all 0.5s;
+  animation: oscillate 1s cubic-bezier(0.17, 0.67, 0.45, 1.32) infinite alternate;
+}
+
+.right-detail-card .tab .head {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  line-height: 40px;
+  padding-left: 40px;
+}
+
+.right-detail-card .tab .head::after {
+  content: '';
+  position: absolute;
+  top: 29px;
+  left: 26px;
+  width: 211px;
+  height: 13px;
+  background-image: url(/images/bg-矩形4.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.right-detail-card .tab .head .head-icon {
+  width: 33px;
+  height: 33px;
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  /* top: 21px;
+  left: 21px; */
+  /* transform: translate(-50%, -50%); */
+}
+
+.right-detail-card .tab .head .head-icon img {
+  user-select: none;
+  width: 100%;
+  object-fit: contain;
+}
+
+.houses {
+  display: flex;
+  flex-direction: column;
+  align-items: baseline !important;
+}
+
+.houses .bottom {
+  background-color: #fff;
+  width: 100%;
+  height: 161px;
+}
+
+.right-detail-card .tab {
+  min-height: 50px;
+}
