@@ -2,8 +2,8 @@ import { MINIO_API } from "@/utils/api/index"
 import { ResultUploadFileDTO,ResultObject,ResultListFileDTO,ResultListBucketDTO,ResultString,ResultFileInfoDTO } from "@/entity/minio"
 
 /** 上传文件 */
-export function upload(file?: File ,query?: { prefix?: string } ,bucketName?: string): Promise<ResultUploadFileDTO> {
-  return MINIO_API.connect("POST", `/minio/upload/${bucketName}`, file, query)
+export function upload(body: { file?: File } ,query?: { prefix?: string } ,bucketName?: string): Promise<ResultUploadFileDTO> {
+  return MINIO_API.connect("POST", `/minio/upload/${bucketName}`, body, query , { contentType: 'multipart/form-data' })
 }
 
 /** 创建存储桶 */

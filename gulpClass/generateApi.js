@@ -129,10 +129,10 @@ class Generate {
       nextType = res ?? 'any';
       isImport = true;
     } else {
-      nextType = TypeEnum[type];
+      nextType = TypeEnum[type] ?? 'any';
     }
     if (format === 'binary') {
-      nextType = TypeEnum[format];
+      nextType = TypeEnum[format] ?? 'any';
     }
     return { nextType, isImport };
   }
@@ -145,14 +145,14 @@ class Generate {
     for (let key of keys) {
       const collect = map.get(key);
       // 确定每个tag类的模块名
-      const fileName = this.filterName(Object.keys(collect));
+      const fileName = this.filterName(Object.keys(collect)) ?? 'unknown';
 
       const arr = Object.entries(collect);
       const ast = new Map();
       this.apiNameList = [];
       for (const item of arr) {
         const data = this.createApiModule(item, module, fileName);
-
+        if (!data) continue;
         const key = item[0];
 
         const collect = ast.get(fileName) ?? {};
@@ -243,7 +243,7 @@ class Generate {
   analysisAst(ast, module) {
     const keys = ast.keys();
     for (const key of keys) {
-      const importList = [];
+      this.importList = [];
       const apiList = [];
       const value = ast.get(key);
 
@@ -253,34 +253,32 @@ class Generate {
 
           const pathStr = this.changePathToStr(item.path).join(',');
           const queryStr = this.changeQueryToStr(item.query);
-          let bodyStr;
-          let bodyName;
-          if (item.body.length > 0) {
-            const body = item.body[0];
-            const { name, type, isImport } = body;
-            bodyName = name;
-            if (isImport) {
-              importList.push(type);
-            }
-            bodyStr = `${name}?: ${type}`;
+          const { bodyStr, contentType, bodyName } = this.createBodyStr(item.body);
+          let contentTypeStr;
+          if (contentType === 'multipart/form-data' || item.contentType === 'multipart/form-data') {
+            contentTypeStr = `, { contentType: '${contentType}' }`;
           }
 
           const { responseEntity, isImport } = item.response || {};
           if (isImport) {
-            importList.push(responseEntity);
+            this.importList.push(responseEntity);
           }
 
           let api = `\n${description}export function ${item.apiName}(${
             bodyStr ? bodyStr + (pathStr || queryStr ? ' ,' : '') : ''
-          }${queryStr ? queryStr + (queryStr ? ' ,' : '') : ''}${pathStr ? pathStr : ''}): Promise<${
+          }${queryStr ? queryStr + (queryStr ? ' ,' : '') : ''}${pathStr ?? ''}): Promise<${
             responseEntity || 'any'
           }> {\n  return ${item.module.importApi}.connect("${item.method}", \`${item.baseUrl}${
             item.path.length > 0 ? '/' : ''
-          }${item.path.map(it => '${' + it.name + '}').join('/')}\`, ${
-            queryStr ? bodyName + ', query' : bodyName || ''
+          }${item.path.map(it => '${' + it.name + '}').join('/')}\`${
+            bodyName || queryStr || contentTypeStr ? ',' : ''
+          } ${bodyName ? bodyName : queryStr || contentTypeStr ? 'undefined' : ''}${
+            queryStr || contentTypeStr ? ',' : ''
+          } ${queryStr ? 'query' : ''}${!queryStr && contentTypeStr ? undefined + ',' : ''} ${
+            contentTypeStr || ''
           })\n}`;
 
-          api = api.replace(/,(?<=,)\s(?=\))/g, '');
+          api = api.replace(/\s*(?=\))\)/g, ')');
 
           apiList.push(api);
 
@@ -301,7 +299,7 @@ class Generate {
         }
       }
 
-      let filterList = importList.map(it => {
+      let filterList = this.importList.map(it => {
         const result = it.replace('[]', '');
         return result;
       });
@@ -316,6 +314,40 @@ class Generate {
       const content = `${importApi}\n${importEntity}\n${apiList.join('\n')}`;
       this.writeFile(`src/api/${module.name}/${key}Api.ts`, content);
     }
+  }
+  createBodyStr(bodyList = []) {
+    let contentType;
+    let bodyStr;
+    let bodyName;
+    let typeString = [];
+
+    if (bodyList.length === 0 || !Array.isArray(bodyList)) {
+      return { contentType, bodyStr, bodyName };
+    }
+    for (const body of bodyList) {
+      const { name, type, isImport } = body;
+      if (type === 'File') {
+        contentType = 'multipart/form-data';
+      }
+      if (isImport) {
+        this.importList.push(type);
+      }
+      typeString.push(`${name}?: ${type}`);
+    }
+    if (typeString.length > 1 || contentType === 'multipart/form-data') {
+      bodyStr = typeString.length > 0 ? `body: { ${typeString.join(';')} }` : undefined;
+      bodyName = typeString.length > 0 ? 'body' : undefined;
+    } else {
+      const body = bodyList[0];
+      const { name, type, isImport } = body;
+
+      if (isImport) {
+        this.importList.push(type);
+      }
+      bodyName = name;
+      bodyStr = `${name}?: ${type}`;
+    }
+    return { contentType, bodyStr, bodyName };
   }
   changePathToStr(path) {
     let pathStr = [];
@@ -339,30 +371,33 @@ class Generate {
   createApiModule(apiModule, module, fileName) {
     const key = apiModule[0];
     const value = apiModule[1];
+    try {
+      // 方法名
+      const apiName = this.getApiName(value);
+      // 接口描述
+      const description = value.summary;
 
-    // 方法名
-    const apiName = this.getApiName(value);
-    // 接口描述
-    const description = value.summary;
+      const data = this.handleParameters(value.parameters);
+      const body = this.handleRequestBody(value.requestBody);
+      data.body = data.body.concat(body.requestBody);
+      const response = this.handleResponses(value.responses);
 
-    const data = this.handleParameters(value.parameters);
-    const body = this.handleRequestBody(value.requestBody);
-    data.body = data.body.concat(body.requestBody);
-    const response = this.handleResponses(value.responses);
-
-    return {
-      baseUrl: value.baseUrl,
-      contentType: body.contentType,
-      method: value.method.toUpperCase(),
-      apiName,
-      description,
-      body: data.body,
-      query: data.query,
-      path: data.path,
-      response,
-      module,
-      tag: value.tags[0]
-    };
+      return {
+        baseUrl: value.baseUrl,
+        contentType: body.contentType,
+        method: value.method.toUpperCase(),
+        apiName,
+        description,
+        body: data.body,
+        query: data.query,
+        path: data.path,
+        response,
+        module,
+        tag: value.tags[0]
+      };
+    } catch (error) {
+      console.error(key, error);
+    }
   }
   getApiName(value) {
     let baseUrl = value.baseUrl;
@@ -371,7 +406,7 @@ class Generate {
     }
 
     let apiName = this.getLastName(baseUrl);
-    let ext = this.getLastName(baseUrl.split(apiName)[0]);
+    let ext = this.getLastName(baseUrl.split(apiName)[0]) ?? apiName;
     ext = ext.charAt(0).toUpperCase() + ext.slice(1);
     if (['delete', 'import', 'export'].includes(apiName)) {
       apiName = apiName + ext;
@@ -399,6 +434,7 @@ class Generate {
     if (str.endsWith('/')) {
       str = str.slice(0, str.length - 1);
     }
+    if (!str) return;
     const reg = /(?<=\/)(?:.(?!\/))*$/;
     const result = reg.exec(str);
     return result[0];
@@ -409,9 +445,20 @@ class Generate {
     const path = [];
     for (let it of list) {
       it.schema = { type: it.type, ...it.schema };
-      const { nextType, isImport } = this.fomateEntity(it.schema);
-      it.type = nextType;
-      it.isImport = isImport;
+      let type = it.type || it.schema.type || 'any';
+      let requirImport = false;
+      if (type === 'array') {
+        const res = this.fomateEntity(it.items);
+        type = (res.nextType ?? 'any') + '[]';
+        requirImport = res.isImport;
+      } else {
+        let { nextType, isImport } = this.fomateEntity(it.schema);
+        type = nextType;
+        requirImport = isImport;
+      }
+      it.type = type;
+      it.isImport = requirImport;
+
       if (it.in === 'body') {
         body.push(it);
       }

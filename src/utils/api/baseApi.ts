@@ -7,6 +7,7 @@ import { ElMessage } from 'element-plus';
 
 export type ApiConfig = {
   timeout?: number;
+  contentType?: string;
 };
 
 export class BaseApi {
@@ -40,7 +41,7 @@ export class BaseApi {
     method = method.toUpperCase();
     const headers = new Headers();
 
-    if (body instanceof FormData) {
+    if (apiConfig.contentType === 'multipart/form-data') {
       //
     } else {
       headers.set('content-type', 'application/json');
@@ -57,8 +58,12 @@ export class BaseApi {
     if (method === 'GET' || method === 'HEAD') {
       //
     } else {
-      if (body instanceof FormData) {
-        args.body = body;
+      if (apiConfig.contentType === 'multipart/form-data' && typeof body === 'object') {
+        const formData = new FormData();
+        for (const key in body) {
+          formData.append(key, body[key]);
+        }
+        args.body = formData;
       } else {
         args.body = body ? JSON.stringify(body) : null;
       }
@@ -67,10 +72,10 @@ export class BaseApi {
     const fetchUrl = `${this.host}${url}`;
 
     try {
-      const res: Response = await PromiseTimeout(window.fetch(fetchUrl, args), apiConfig.timeout);
+      const res: Response = await PromiseTimeout(window.fetch(fetchUrl, args), apiConfig.timeout ?? 15000);
       if (res.status === 401) {
         pageToLogin();
-        throw new Error(`请求接口[${this.name}]${this.host}${url} 鉴权失败！`);
+        throw new Error('401');
       }
       let value;
       const contentType = res.headers.get('content-type');
@@ -99,6 +104,7 @@ export class BaseApi {
       const errorMessage: keyof typeof errorMap = err ? err.message || err : '404';
       const error = errorMap[errorMessage] || err?.message || err || '网络连接错误';
       ElMessage.error(error);
+      console.error(error);
       return { state: -1, data: null, msg: error };
     }
   }

@@ -170,7 +170,7 @@ function uploadFunc(file) {
   if (props.limit && state.imgUrl.length >= props.limit) {
     return;
   }
-  upload(file.raw, { prefix: props.savePath }, props.bucketName).then(res => {
+  upload({ file: file.raw }, { prefix: props.savePath }, props.bucketName).then(res => {
     const newUrl = `/${res.data.bucket}/${res.data.object}`;
     state.imgUrl.push({
       file: file,
