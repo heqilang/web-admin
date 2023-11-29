@@ -57,7 +57,7 @@ export function getPermission(): Promise<ResultModuleListVO> {
 }
 
 /** 获取模块下菜单树 */
-export function sysMenuTreeList(query?: { module_id?: string } ,): Promise<ResultListMenuListVO> {
+export function sysMenuTreeList(query?: { module_id?: string }): Promise<ResultListMenuListVO> {
   return SYS_API.connect("GET", `/api/Sys/sysMenuTreeList`, undefined, query)
 }
 
@@ -82,7 +82,7 @@ export function updateLoginSysUserBasic(data?: UpdateUserBasicDTO): Promise<Resu
 }
 
 /** 解除绑定的微信 */
-export function unbindWechat(query?: { user_id?: string } ,): Promise<Result> {
+export function unbindWechat(query?: { user_id?: string }): Promise<Result> {
   return SYS_API.connect("POST", `/api/Sys/unbindWechat`, undefined, query)
 }
 
@@ -92,22 +92,22 @@ export function getSysUserList(data?: UserListPageDTO): Promise<ResultPageResult
 }
 
 /** 获取重置手机号或密码短信验证码(未登录状态和个人中心均支持) */
-export function getResetSmsVerifyCode_1(query?: { user_mobile?: string } ,): Promise<ResultString> {
+export function getResetSmsVerifyCode_1(query?: { user_mobile?: string }): Promise<ResultString> {
   return SYS_API.connect("GET", `/api/Sys/getResetSmsVerifyCode`, undefined, query)
 }
 
 /** 启用用户 */
-export function enableSysUser(query?: { user_id?: string } ,): Promise<ResultString> {
+export function enableSysUser(query?: { user_id?: string }): Promise<ResultString> {
   return SYS_API.connect("POST", `/api/Sys/enableSysUser`, undefined, query)
 }
 
 /** 禁止用户 */
-export function disableSysUser(query?: { user_id?: string } ,): Promise<ResultString> {
+export function disableSysUser(query?: { user_id?: string }): Promise<ResultString> {
   return SYS_API.connect("POST", `/api/Sys/disableSysUser`, undefined, query)
 }
 
 /** 删除用户 */
-export function deleteSysUser(query?: { user_id?: string } ,): Promise<ResultString> {
+export function deleteSysUser(query?: { user_id?: string }): Promise<ResultString> {
   return SYS_API.connect("POST", `/api/Sys/deleteSysUser`, undefined, query)
 }
 
@@ -122,7 +122,7 @@ export function addSysUser(data?: UserAddDTO): Promise<ResultString> {
 }
 
 /** 获取用户 */
-export function getSysUser(query?: { user_id?: string } ,): Promise<ResultUserVO> {
+export function getSysUser(query?: { user_id?: string }): Promise<ResultUserVO> {
   return SYS_API.connect("GET", `/api/Sys/getSysUser`, undefined, query)
 }
 
@@ -137,7 +137,7 @@ export function updateSysRole(data?: RoleUpdateDTO): Promise<ResultString> {
 }
 
 /** 删除角色 */
-export function deleteSysRole(query?: { role_id?: string } ,): Promise<ResultString> {
+export function deleteSysRole(query?: { role_id?: string }): Promise<ResultString> {
   return SYS_API.connect("POST", `/api/Sys/deleteSysRole`, undefined, query)
 }
 
@@ -147,7 +147,7 @@ export function addSysRole(data?: RoleAddDTO): Promise<ResultString> {
 }
 
 /** 获取角色 */
-export function getSysRole(query?: { role_id?: string } ,): Promise<ResultRoleVO> {
+export function getSysRole(query?: { role_id?: string }): Promise<ResultRoleVO> {
   return SYS_API.connect("GET", `/api/Sys/getSysRole`, undefined, query)
 }
 
@@ -162,7 +162,7 @@ export function updateSysJob(data?: JobUpdateDTO): Promise<ResultString> {
 }
 
 /** 删除岗位 */
-export function deleteSysJob(query?: { job_id?: string } ,): Promise<ResultString> {
+export function deleteSysJob(query?: { job_id?: string }): Promise<ResultString> {
   return SYS_API.connect("POST", `/api/Sys/deleteSysJob`, undefined, query)
 }
 
@@ -187,7 +187,7 @@ export function updateSysDept(data?: DeptUpdateDTO): Promise<ResultString> {
 }
 
 /** 删除部门 */
-export function deleteSysDept(query?: { dept_id?: string } ,): Promise<ResultString> {
+export function deleteSysDept(query?: { dept_id?: string }): Promise<ResultString> {
   return SYS_API.connect("POST", `/api/Sys/deleteSysDept`, undefined, query)
 }
 
@@ -232,17 +232,17 @@ export function loginBySms(data?: UserLoginBySmsDTO): Promise<ResultUserLoginVO>
 }
 
 /** 获取重置手机号或密码短信验证码(未登录状态和个人中心均支持) */
-export function getResetSmsVerifyCode(query?: { user_mobile?: string } ,): Promise<Result> {
+export function getResetSmsVerifyCode(query?: { user_mobile?: string }): Promise<Result> {
   return SYS_API.connect("POST", `/api/Sys/getResetSmsVerifyCode`, undefined, query)
 }
 
 /** 获取登录短信验证码(未登录状态) */
-export function getLoginSmsVerifyCode(query?: { user_mobile?: string } ,): Promise<Result> {
+export function getLoginSmsVerifyCode(query?: { user_mobile?: string }): Promise<Result> {
   return SYS_API.connect("POST", `/api/Sys/getLoginSmsVerifyCode`, undefined, query)
 }
 
 /** 获取图片验证码 */
-export function verifyCodeImg(query?: { uuid?: string } ,): Promise<any> {
+export function verifyCodeImg(query?: { uuid?: string }): Promise<any> {
   return SYS_API.connect("GET", `/api/Sys/verifyCodeImg`, undefined, query)
 }
 

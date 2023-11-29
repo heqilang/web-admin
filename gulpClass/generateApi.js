@@ -270,7 +270,7 @@ class Generate {
         try {
           const description = item.description ? `/** ${item.description} */\n` : '';
 
-          const pathStr = this.changePathToStr(item.path).join(',');
+          const pathStr = this.changePathToStr(item.path).join(', ');
           const queryStr = this.changeQueryToStr(item.query);
           const { bodyStr, contentType, bodyName } = this.changeBodyToStr(item.body);
           let contentTypeStr;
@@ -284,8 +284,8 @@ class Generate {
           }
 
           let api = `\n${description}export function ${item.apiName}(${
-            bodyStr ? bodyStr + (pathStr || queryStr ? ' ,' : '') : ''
-          }${queryStr ? queryStr + (queryStr ? ' ,' : '') : ''}${pathStr ?? ''}): Promise<${
+            bodyStr ? bodyStr + (pathStr || queryStr ? ', ' : '') : ''
+          }${queryStr ? queryStr + (pathStr ? ', ' : '') : ''}${pathStr ?? ''}): Promise<${
             responseEntity || 'any'
           }> {\n  return ${item.module.importApi}.connect("${item.method}", \`${item.baseUrl}${
             item.path.length > 0 ? '/' : ''
