@@ -151,7 +151,7 @@ class Generate {
       const ast = new Map();
       this.apiNameList = [];
       for (const item of arr) {
-        const data = this.createApiModule(item, module, fileName);
+        const data = this.createApiModule(item, module);
         if (!data) continue;
         const key = item[0];
 
@@ -164,6 +164,7 @@ class Generate {
       this.analysisAst(ast, module);
     }
   }
+
   /**
    * 将paths归类，根据归类创建api目录
    * 例如 {a/b/c:{tags:[1]},a/b/f:{tags:[1]},a/d:{tags:[2]},a/b/d:{tags:[3]}} => {a/b:{a/b/c:{tags:[1]},a/b/f:{tags:[1]}, a/b/d:{tags:[3]}}, a:{a/d:{tags:[2]}}}
@@ -223,23 +224,41 @@ class Generate {
     }
     return filterMap;
   }
-  longestCommonPrefix(strs) {
-    let str = strs[0];
-    while (!strs.every(item => item.startsWith(str)) || !str.endsWith('/')) {
-      str = str.slice(0, str.length - 1);
+
+  /** 分析单个api模块 */
+  createApiModule(apiModule, module) {
+    const key = apiModule[0];
+    const value = apiModule[1];
+    try {
+      // 方法名
+      const apiName = this.getApiName(value);
+      // 接口描述
+      const description = value.summary;
+
+      const data = this.handleParameters(value.parameters);
+      const body = this.handleRequestBody(value.requestBody);
+      data.body = data.body.concat(body.requestBody);
+      const response = this.handleResponses(value.responses);
+
+      return {
+        baseUrl: value.baseUrl,
+        contentType: body.contentType,
+        method: value.method.toUpperCase(),
+        apiName,
+        description,
+        body: data.body,
+        query: data.query,
+        path: data.path,
+        response,
+        module,
+        tag: value.tags[0]
+      };
+    } catch (error) {
+      console.error(key, error);
     }
-    return str === '' ? '' : str;
   }
-  filterName(strs) {
-    let str = this.longestCommonPrefix(strs);
-    const reg = /(.*?)(?<=\/)(?:.(?!\/))*$/;
-    let res = reg.exec(str || '')[1] || '';
-    if (res.endsWith('/')) {
-      res = res.slice(0, res.length - 1);
-    }
-    return res;
-  }
-  // 分析ast
+
+  /** 分析ast */
   analysisAst(ast, module) {
     const keys = ast.keys();
     for (const key of keys) {
@@ -253,7 +272,7 @@ class Generate {
 
           const pathStr = this.changePathToStr(item.path).join(',');
           const queryStr = this.changeQueryToStr(item.query);
-          const { bodyStr, contentType, bodyName } = this.createBodyStr(item.body);
+          const { bodyStr, contentType, bodyName } = this.changeBodyToStr(item.body);
           let contentTypeStr;
           if (contentType === 'multipart/form-data' || item.contentType === 'multipart/form-data') {
             contentTypeStr = `, { contentType: '${contentType}' }`;
@@ -315,130 +334,8 @@ class Generate {
       this.writeFile(`src/api/${module.name}/${key}Api.ts`, content);
     }
   }
-  createBodyStr(bodyList = []) {
-    let contentType;
-    let bodyStr;
-    let bodyName;
-    let typeString = [];
 
-    if (bodyList.length === 0 || !Array.isArray(bodyList)) {
-      return { contentType, bodyStr, bodyName };
-    }
-    for (const body of bodyList) {
-      const { name, type, isImport } = body;
-      if (type === 'File') {
-        contentType = 'multipart/form-data';
-      }
-      if (isImport) {
-        this.importList.push(type);
-      }
-      typeString.push(`${name}?: ${type}`);
-    }
-    if (typeString.length > 1 || contentType === 'multipart/form-data') {
-      bodyStr = typeString.length > 0 ? `body: { ${typeString.join(';')} }` : undefined;
-      bodyName = typeString.length > 0 ? 'body' : undefined;
-    } else {
-      const body = bodyList[0];
-      const { name, type, isImport } = body;
-
-      if (isImport) {
-        this.importList.push(type);
-      }
-      bodyName = name;
-      bodyStr = `${name}?: ${type}`;
-    }
-    return { contentType, bodyStr, bodyName };
-  }
-  changePathToStr(path) {
-    let pathStr = [];
-    for (const item of path) {
-      pathStr.push(`${item.name}?: ${item.type}`);
-    }
-    return pathStr;
-  }
-  changeQueryToStr(query) {
-    if (query.length === 0) {
-      return '';
-    }
-    let type = this.changePathToStr(query);
-    type = `{ ${type.join(';')} }`;
-    return `query?: ${type}`;
-  }
-  changeBodyToStr(body) {
-    const data = body[0];
-    return `${data.n}?: ${body}`;
-  }
-  createApiModule(apiModule, module, fileName) {
-    const key = apiModule[0];
-    const value = apiModule[1];
-    try {
-      // 方法名
-      const apiName = this.getApiName(value);
-      // 接口描述
-      const description = value.summary;
-
-      const data = this.handleParameters(value.parameters);
-      const body = this.handleRequestBody(value.requestBody);
-      data.body = data.body.concat(body.requestBody);
-      const response = this.handleResponses(value.responses);
-
-      return {
-        baseUrl: value.baseUrl,
-        contentType: body.contentType,
-        method: value.method.toUpperCase(),
-        apiName,
-        description,
-        body: data.body,
-        query: data.query,
-        path: data.path,
-        response,
-        module,
-        tag: value.tags[0]
-      };
-    } catch (error) {
-      console.error(key, error);
-    }
-  }
-  getApiName(value) {
-    let baseUrl = value.baseUrl;
-    if (value.useOperationId) {
-      baseUrl = value.operationIdPath;
-    }
-
-    let apiName = this.getLastName(baseUrl);
-    let ext = this.getLastName(baseUrl.split(apiName)[0]) ?? apiName;
-    ext = ext.charAt(0).toUpperCase() + ext.slice(1);
-    if (['delete', 'import', 'export'].includes(apiName)) {
-      apiName = apiName + ext;
-    }
-
-    if (this.apiNameList.includes(apiName)) {
-      apiName = apiName + ext;
-    }
-    apiName = apiName.replace(/-/g, '_');
-    this.apiNameList.push(apiName);
-    return apiName;
-  }
-
-  getPath(str) {
-    const reg = /^(?:.(?!\{))*/;
-    const result = reg.exec(str);
-    return result[0];
-  }
-  getFirstName(str) {
-    const reg = /^\/?(.*?)(?=\/).*/;
-    const result = reg.exec(str);
-    return result[1];
-  }
-  getLastName(str) {
-    if (str.endsWith('/')) {
-      str = str.slice(0, str.length - 1);
-    }
-    if (!str) return;
-    const reg = /(?<=\/)(?:.(?!\/))*$/;
-    const result = reg.exec(str);
-    return result[0];
-  }
+  /** 处理参数，归类到path/query/body */
   handleParameters(list = []) {
     const query = [];
     const body = [];
@@ -471,6 +368,11 @@ class Generate {
     }
     return { query, body, path };
   }
+
+  /**
+   * 处理请求body参数
+   * 最后将与handleParameters中的body合并形成完整的body参数
+   */
   handleRequestBody(body) {
     if (!body) return { requestBody: [] };
     const bodyContent = body.content;
@@ -496,6 +398,7 @@ class Generate {
     }
   }
 
+  /** 处理响应结果 */
   handleResponses(responses) {
     try {
       const content = responses[200].content;
@@ -513,6 +416,141 @@ class Generate {
       };
     }
   }
+
+  /**
+   * 分析body列表生成body名、body类型、body数据格式
+   * @param {Array<any>} bodyList
+   * @returns
+   */
+  changeBodyToStr(bodyList = []) {
+    let contentType;
+    // body参数类型
+    let bodyStr;
+    // body参数名
+    let bodyName;
+    // body参数列表
+    let typeString = [];
+
+    if (bodyList.length === 0 || !Array.isArray(bodyList)) {
+      return { contentType, bodyStr, bodyName };
+    }
+    // 将body列表转换为类型字符串列表，若其中有File类型，将content-type设置为form-data格式
+    for (const body of bodyList) {
+      const { name, type, isImport } = body;
+      if (type === 'File') {
+        contentType = 'multipart/form-data';
+      }
+      if (isImport) {
+        this.importList.push(type);
+      }
+      typeString.push(`${name}?: ${type}`);
+    }
+    // 若body类型有多个或者是form-data格式，将body合并为一个对象，固定参数名为`body`。
+    // 若body类型仅有一个且不是form-data格式，则将类型名作为参数名。
+    if (typeString.length > 1 || contentType === 'multipart/form-data') {
+      bodyStr = typeString.length > 0 ? `body: { ${typeString.join('; ')} }` : undefined;
+      bodyName = typeString.length > 0 ? 'body' : undefined;
+    } else {
+      const body = bodyList[0];
+      const { name, type, isImport } = body;
+
+      if (isImport) {
+        this.importList.push(type);
+      }
+      bodyName = name;
+      bodyStr = `${name}?: ${type}`;
+    }
+    return { contentType, bodyStr, bodyName };
+  }
+
+  /** 生成路径参数 */
+  changePathToStr(path) {
+    let pathStr = [];
+    for (const item of path) {
+      pathStr.push(`${item.name}?: ${item.type}`);
+    }
+    return pathStr;
+  }
+
+  /** 生成query查询参数 */
+  changeQueryToStr(query) {
+    if (query.length === 0) {
+      return '';
+    }
+    let type = this.changePathToStr(query);
+    type = `{ ${type.join('; ')} }`;
+    return `query?: ${type}`;
+  }
+
+  /** 获取api方法名 */
+  getApiName(value) {
+    let baseUrl = value.baseUrl;
+    // 相同请求路径，不同请求方法，使用operationId作为方法名
+    // 否则使用请求路径最后一个/后的字符串作为方法名
+    // 若方法名为delete/import等保留字,或者方法名已存在，获取倒数第二个/与最后一个/间的字符串作为api扩展名，并与方法名拼接
+    if (value.useOperationId) {
+      baseUrl = value.operationIdPath;
+    }
+    let apiName = this.getLastName(baseUrl);
+    let ext = this.getLastName(baseUrl.split(apiName)[0]) ?? apiName;
+    ext = ext.charAt(0).toUpperCase() + ext.slice(1);
+    if (['delete', 'import', 'export'].includes(apiName)) {
+      apiName = apiName + ext;
+    }
+
+    if (this.apiNameList.includes(apiName)) {
+      apiName = apiName + ext;
+    }
+    apiName = apiName.replace(/-/g, '_');
+    this.apiNameList.push(apiName);
+    return apiName;
+  }
+
+  /** 获取除路径参数外的请求路径 */
+  getPath(str) {
+    const reg = /^(?:.(?!\{))*/;
+    const result = reg.exec(str);
+    return result[0];
+  }
+
+  /** 获取第一个/与第二个/间的字符串 */
+  getFirstName(str) {
+    const reg = /^\/?(.*?)(?=\/).*/;
+    const result = reg.exec(str);
+    return result[1];
+  }
+
+  /** 获取最后一个/后的字符串 */
+  getLastName(str) {
+    if (str.endsWith('/')) {
+      str = str.slice(0, str.length - 1);
+    }
+    if (!str) return;
+    const reg = /(?<=\/)(?:.(?!\/))*$/;
+    const result = reg.exec(str);
+    return result[0];
+  }
+
+  /** 最长公共前缀 */
+  longestCommonPrefix(strs) {
+    let str = strs[0];
+    while (!strs.every(item => item.startsWith(str)) || !str.endsWith('/')) {
+      str = str.slice(0, str.length - 1);
+    }
+    return str === '' ? '' : str;
+  }
+
+  /** 获取最长公共前缀中最后一个/后的字符串 */
+  filterName(strs) {
+    let str = this.longestCommonPrefix(strs);
+    const reg = /(.*?)(?<=\/)(?:.(?!\/))*$/;
+    let res = reg.exec(str || '')[1] || '';
+    if (res.endsWith('/')) {
+      res = res.slice(0, res.length - 1);
+    }
+    return res;
+  }
+
   async start() {
     this.cleanAll();
     const promiseList = await this.fetchModules(this.modules);
