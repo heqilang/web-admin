@@ -12,7 +12,6 @@
       :name="name"
       :drag="drag"
       :accept="accept"
-      :type="type"
       v-model:file-list="state.imgUrl"
       :auto-upload="autoUpload"
       :list-type="listType"

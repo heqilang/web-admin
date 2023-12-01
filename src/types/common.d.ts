@@ -36,6 +36,12 @@ export type TableReactive<T> = {
   tableHead: BaseTableColumn<keyof T>[];
 };
 
+export interface FileDto {
+  buffer: ArrayBuffer;
+  fileType: string;
+  fileName?: string;
+}
+
 export interface CondRow {
   key: string;
   operator: '=' | '!=' | 'like' | '>=' | '>' | '<' | '<=';

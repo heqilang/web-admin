@@ -1,4 +1,4 @@
-import { FileDto } from '@/entity/common';
+import { FileDto } from '@/types/common';
 
 export function downloadFile(res: FileDto, name?: string) {
   const fileName = name || res.fileName || new Date().valueOf().toString();
