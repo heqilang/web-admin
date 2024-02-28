@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
 import colors from 'ansi-colors';
+import GenerateUtil from './generateUtil.js';
 
 const TypeEnum = {
   String: 'string',
@@ -125,7 +126,7 @@ class Generate {
     let nextType;
     let isImport = false;
     if ($ref) {
-      const res = this.getLastName($ref);
+      const res = GenerateUtil.getLastName($ref);
       nextType = res ?? 'any';
       isImport = true;
     } else {
@@ -145,7 +146,7 @@ class Generate {
     for (let key of keys) {
       const collect = map.get(key);
       // 确定每个tag类的模块名
-      const fileName = this.filterName(Object.keys(collect)) ?? 'unknown';
+      const fileName = GenerateUtil.filterName(Object.keys(collect)) ?? 'unknown';
 
       const arr = Object.entries(collect);
       const ast = new Map();
@@ -189,7 +190,7 @@ class Generate {
         // 请求方法
         content.method = method;
         // 请求基础路径
-        const baseUrl = this.getPath(key);
+        const baseUrl = GenerateUtil.getPath(key);
         content.baseUrl = baseUrl;
 
         // 相同请求路径，多个不同请求方法特殊处理。将基础路径最后一位替换实际url
@@ -213,7 +214,7 @@ class Generate {
     for (const key of keys) {
       const collect = map.get(key);
 
-      const tagCommonStr = this.longestCommonPrefix(Object.keys(collect));
+      const tagCommonStr = GenerateUtil.longestCommonPrefix(Object.keys(collect));
       if (allCommonPrefix.includes(tagCommonStr)) {
         const old = filterMap.get(tagCommonStr);
         filterMap.set(tagCommonStr, { ...old, ...collect });
@@ -345,7 +346,7 @@ class Generate {
       let type = it.type || it.schema.type || 'any';
       let requirImport = false;
       if (type === 'array') {
-        const res = this.fomateEntity(it.items);
+        const res = this.fomateEntity(it.items || it.schema?.items || {});
         type = (res.nextType ?? 'any') + '[]';
         requirImport = res.isImport;
       } else {
@@ -491,10 +492,10 @@ class Generate {
     if (value.useOperationId) {
       baseUrl = value.operationIdPath;
     }
-    let apiName = this.getLastName(baseUrl);
-    let ext = this.getLastName(baseUrl.split(apiName)[0]) ?? apiName;
+    let apiName = GenerateUtil.getLastName(baseUrl);
+    let ext = GenerateUtil.getLastName(baseUrl.split(apiName)[0]) ?? apiName;
     ext = ext.charAt(0).toUpperCase() + ext.slice(1);
-    if (['delete', 'import', 'export'].includes(apiName)) {
+    if (['delete', 'import', 'export', 'get', 'list', 'page', 'update', 'insert'].includes(apiName)) {
       apiName = apiName + ext;
     }
 
@@ -504,51 +505,6 @@ class Generate {
     apiName = apiName.replace(/-/g, '_');
     this.apiNameList.push(apiName);
     return apiName;
-  }
-
-  /** 获取除路径参数外的请求路径 */
-  getPath(str) {
-    const reg = /^(?:.(?!\{))*/;
-    const result = reg.exec(str);
-    return result[0];
-  }
-
-  /** 获取第一个/与第二个/间的字符串 */
-  getFirstName(str) {
-    const reg = /^\/?(.*?)(?=\/).*/;
-    const result = reg.exec(str);
-    return result[1];
-  }
-
-  /** 获取最后一个/后的字符串 */
-  getLastName(str) {
-    if (str.endsWith('/')) {
-      str = str.slice(0, str.length - 1);
-    }
-    if (!str) return;
-    const reg = /(?<=\/)(?:.(?!\/))*$/;
-    const result = reg.exec(str);
-    return result[0];
-  }
-
-  /** 最长公共前缀 */
-  longestCommonPrefix(strs) {
-    let str = strs[0];
-    while (!strs.every(item => item.startsWith(str)) || !str.endsWith('/')) {
-      str = str.slice(0, str.length - 1);
-    }
-    return str === '' ? '' : str;
-  }
-
-  /** 获取最长公共前缀中最后一个/后的字符串 */
-  filterName(strs) {
-    let str = this.longestCommonPrefix(strs);
-    const reg = /(.*?)(?<=\/)(?:.(?!\/))*$/;
-    let res = reg.exec(str || '')[1] || '';
-    if (res.endsWith('/')) {
-      res = res.slice(0, res.length - 1);
-    }
-    return res;
   }
 
   async start() {
