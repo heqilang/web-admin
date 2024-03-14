@@ -44,6 +44,7 @@ class Generate {
     this.apiPath = apiPath;
     const modules = yaml.load(fs.readFileSync(path.join(process.cwd(), '/apimodules.yaml'), 'utf8'));
     this.modules = modules;
+    this.pathModules = [];
   }
 
   async fetchModules() {
@@ -54,6 +55,10 @@ class Generate {
           fetch(item.path, {
             method: 'get',
             headers: { 'Content-Type': 'application/json' }
+          }).catch(err => {
+            console.log(colors.red(`fetch module【${item.name}】 error:`));
+            console.error(err);
+            return;
           })
         );
       }
@@ -511,18 +516,23 @@ class Generate {
     this.cleanAll();
     const promiseList = await this.fetchModules(this.modules);
     for (const res of promiseList) {
+      if (!res) continue;
       const url = res.url;
 
       const module = this.modules.find(item => decodeURI(item.path) === decodeURI(url));
-
+      this.pathModules.push(module);
       const json = await res.json();
       this.createEntity(module, json.components?.schemas || json.definitions);
       this.createApi(module, json?.paths);
     }
   }
   cleanAll() {
-    this.clean(this.entityPath);
-    this.clean(this.apiPath);
+    for (const item of this.pathModules) {
+      const entityPath = path.join(this.entityPath, item.name);
+      const apiPath = path.join(this.apiPath, item.name);
+      this.clean(entityPath);
+      this.clean(apiPath);
+    }
   }
   clean(pathLike) {
     if (!fs.existsSync(pathLike)) return;
