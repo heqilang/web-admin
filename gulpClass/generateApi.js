@@ -1,10 +1,12 @@
-import fetch from 'node-fetch';
-import fs from 'fs';
-import path from 'path';
-import yaml from 'js-yaml';
-import colors from 'ansi-colors';
-import GenerateUtil from './generateUtil.js';
 
+
+
+const fetch = require('node-fetch');
+var fs = require('fs');
+var path = require('path');
+const colors = require('colors');
+
+var GenerateUtil = require('heqilang/generateUtil.js');
 const TypeEnum = {
   String: 'string',
   string: 'string',
@@ -39,10 +41,10 @@ const TypeEnum = {
 };
 
 class Generate {
-  constructor(entityPath, apiPath) {
+  constructor(entityPath, apiPath, modules) {
+
     this.entityPath = entityPath;
     this.apiPath = apiPath;
-    const modules = yaml.load(fs.readFileSync(path.join(process.cwd(), '/apimodules.yaml'), 'utf8'));
     this.modules = modules;
     this.pathModules = [];
   }
@@ -289,19 +291,13 @@ class Generate {
             this.importList.push(responseEntity);
           }
 
-          let api = `\n${description}export function ${item.apiName}(${
-            bodyStr ? bodyStr + (pathStr || queryStr ? ', ' : '') : ''
-          }${queryStr ? queryStr + (pathStr ? ', ' : '') : ''}${pathStr ?? ''}): Promise<${
-            responseEntity || 'any'
-          }> {\n  return ${item.module.importApi}.connect("${item.method}", \`${item.baseUrl}${
-            item.path.length > 0 ? '/' : ''
-          }${item.path.map(it => '${' + it.name + '}').join('/')}\`${
-            bodyName || queryStr || contentTypeStr ? ',' : ''
-          } ${bodyName ? bodyName : queryStr || contentTypeStr ? 'undefined' : ''}${
-            queryStr || contentTypeStr ? ',' : ''
-          } ${queryStr ? 'query' : ''}${!queryStr && contentTypeStr ? undefined + ',' : ''} ${
-            contentTypeStr || ''
-          })\n}`;
+          let api = `\n${description}export function ${item.apiName}(${bodyStr ? bodyStr + (pathStr || queryStr ? ', ' : '') : ''
+            }${queryStr ? queryStr + (pathStr ? ', ' : '') : ''}${pathStr ?? ''}): Promise<${responseEntity || 'any'
+            }> {\n  return ${item.module.importApi}.connect("${item.method}", \`${item.baseUrl}${item.path.length > 0 ? '/' : ''
+            }${item.path.map(it => '${' + it.name + '}').join('/')}\`${bodyName || queryStr || contentTypeStr ? ',' : ''
+            } ${bodyName ? bodyName : queryStr || contentTypeStr ? 'undefined' : ''}${queryStr || contentTypeStr ? ',' : ''
+            } ${queryStr ? 'query' : ''}${!queryStr && contentTypeStr ? undefined + ',' : ''} ${contentTypeStr || ''
+            })\n}`;
 
           api = api.replace(/\s*(?=\))\)/g, ')');
 
@@ -543,6 +539,7 @@ class Generate {
     }
   }
   writeFile(pathLike, content) {
+
     if (!fs.existsSync(pathLike)) {
       fs.mkdirSync(path.dirname(pathLike), { recursive: true });
     }
@@ -550,4 +547,6 @@ class Generate {
   }
 }
 
-export { Generate };
+
+
+module.exports = Generate;

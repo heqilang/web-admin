@@ -1,4 +1,4 @@
-export default class GenerateUtil {
+class GenerateUtil {
   /** 获取除路径参数外的请求路径 */
   static getPath(str) {
     const reg = /^(?:.(?!\{))*/;
@@ -44,3 +44,4 @@ export default class GenerateUtil {
     return res;
   }
 }
+module.exports = GenerateUtil

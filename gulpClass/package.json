@@ -1,0 +1,27 @@
+{
+  "name": "heqilang",
+  "version": "1.0.3",
+  "description": "方便前后端联调",
+  "main": "swaggerApi.js",
+  "keywords": [
+    "swagger"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heqilang/web-admin.git"
+  },
+  "scripts": {
+    "test": "node ./index.js"
+  },
+  "author": "hql",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/heqilang/web-admin/issues"
+  },
+  "homepage": "https://github.com/heqilang/web-admin#readme",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "esm": "^3.2.25",
+    "node-fetch": "^3.3.2"
+  }
+}
